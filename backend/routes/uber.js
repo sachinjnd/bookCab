@@ -14,23 +14,38 @@ router.post('/estimateTime', function(req, res, next) {
 	};
 
 	console.log('Hitting Uber API');
-	request({url: 'https://api.uber.com/v1/estimates/time', qs: post_data}, function(error, response, body) {
-		//console.log(response);
-		if(!error && response.statusCode == 200) {
-			//res.send(response);
-			var data = JSON.parse(body);
-			var estimate = null;
-			for(product of data.times) {
-				if(product.display_name == config.UBER_PRODUCT_NAME) {
-					estimate = product.estimate;
-					break;
-				}
-			}
-			res.json({'code': 200, 'time': estimate});
-		} else {
-			res.json({'code': response.statusCode});
-		}
+
+	hitUberAPI(post_data, function(data) {
+		res.json(data);
 	});
 });
+
+
+function hitUberAPI(post_data, callback) {
+	request({url: 'https://api.uber.com/v1/estimates/time', qs: post_data}, function(error, response, body) {
+		//console.log(response);
+		try {
+			if(!error && response.statusCode == 200) {
+				//res.send(response);
+				var data = JSON.parse(body);
+				var estimate = null;
+				for(product of data.times) {
+					if(product.display_name == config.UBER_PRODUCT_NAME) {
+						estimate = product.estimate;
+						break;
+					}
+				}
+				callback({'code': 200, 'time': estimate});
+			} else {
+				callback({'code': response.statusCode});
+			}
+		} catch(err) {
+			console.log(err + ': Hitting Maps API again');
+			hitUberAPI(post_data, callback);
+		}
+	});
+}
+
+
 
 module.exports = router;
