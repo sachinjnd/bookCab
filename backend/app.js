@@ -6,8 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
 var uber = require('./routes/uber');
 var maps = require('./routes/maps');
 var email = require('./routes/email');
@@ -28,8 +26,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
 app.use('/uber', uber);
 app.use('/maps', maps);
 app.use('/email', email);
