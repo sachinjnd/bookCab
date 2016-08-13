@@ -1,6 +1,7 @@
 var APPCAB = {};
 var logs = [];
-logs.unshift("Hello", "Lol", "Hehe");
+logs.unshift('[' + amPm(new Date()) + '] - Welcome :)');
+
 
 var FormModel = React.createClass({
 	render: function() {
@@ -20,6 +21,14 @@ var FormModel = React.createClass({
 
 
 var LogModel = React.createClass({
+	componentDidMount: function() {
+		$(APPCAB).on('log', function(e) {
+			this.forceUpdate();
+		}.bind(this));
+	},
+	componentWillUnmount: function() {
+		$(APPCAB).off('log');
+	},
 	render: function() {
 		var logNodes = logs.map(function(log, i) {
 			return(
@@ -33,6 +42,21 @@ var LogModel = React.createClass({
 		);
 	}
 });
+
+
+function addLog(text) {
+	logs.unshift('[' + amPm(new Date()) + '] - ' + text);
+	$(APPCAB).trigger('log');
+}
+
+
+function amPm(time) {
+	var ampm = time.getHours() >= 12 ? 'PM' : 'AM';
+	var hour = time.getHours() % 12 || 12;
+	hour = ('0'+hour).slice(-2);
+	var min = ('0'+time.getMinutes()).slice(-2);
+	return hour + ':' + min + ' ' + ampm;
+}
 
 
 ReactDOM.render(
