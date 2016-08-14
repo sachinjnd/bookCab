@@ -185,13 +185,14 @@ function getTravelTime(task) {
 						addLog("Sending email to [" + task.email + "]");
 						sendEmail(task);
 					} else {
+						// check after one minute if current time is within max travel + uber time
 						setTimeout(function() { getTravelTime(task) }, 60000);
 					}
 				}
 			}.bind(this));
 		} else {
 			var interval = timeDiff - task.maxTravelTime - maxUberETA;
-			// check after interval
+			// check after interval if current time outside max travel + uber time
 			setTimeout(function() { getTravelTime(task) }, interval*1000);
 		}
 
