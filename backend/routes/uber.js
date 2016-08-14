@@ -44,7 +44,8 @@ function hitUberAPI(post_data, callback) {
 			}
 		} catch(err) {
 			console.log(err + ': Hitting Maps API again');
-			hitUberAPI(post_data, callback);
+			//hitUberAPI(post_data, callback);
+			callback({'code': 204});
 		}
 	});
 }

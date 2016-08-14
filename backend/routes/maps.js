@@ -41,7 +41,8 @@ function hitMapsAPI(post_data, callback) {
 			}
 		} catch(err) {
 			console.log(err + ': Hitting Maps API again');
-			hitMapsAPI(post_data, callback);
+			//hitMapsAPI(post_data, callback);
+			callback({'code': 204});
 		}
 	});
 }

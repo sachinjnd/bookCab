@@ -1,7 +1,7 @@
 var domainUrl = 'http://localhost:3000/';
 var maxGoogleDeviation = 60 * 60;	// in seconds
-var maxUberETA = 10 * 60;			// in seconds
-var safeInterval = 0;					// in seconds (extra offset time for booking cab)
+var maxUberETA = 15 * 60;			// in seconds
+var safeInterval = 60;				// in seconds (extra offset time for booking cab and API call time)
 var APPCAB = {};
 var logs = [];
 var tasks = [];
@@ -150,19 +150,22 @@ function getTravelTime(task) {
 	postToServer('maps/estimateTime', postData, function(data) {
 		if(data == 'error') {
 			addLog("ERROR in Maps API for [" + task.email + "]");
-			getTravelTime(task);
+			// Retrying after 5 seconds
+			setTimeout(function() { getTravelTime(task); }, 5000);
 			return;
 		}
 
 		if(data.code != 200) {
 			addLog("ERROR " + data.code + " from Maps API for [" + task.email + "]");
-			getTravelTime(task);
+			// Retrying after 5 seconds
+			setTimeout(function() { getTravelTime(task); }, 5000);
 			return;
 		}
 
 		if(data.time == null) {
 			addLog("NULL from Maps API for [" + task.email + "]");
-			getTravelTime(task);
+			// Retrying after 5 seconds
+			setTimeout(function() { getTravelTime(task); }, 5000);
 			return;
 		}
 
@@ -179,21 +182,22 @@ function getTravelTime(task) {
 			addLog("Requested Uber API for [" + task.email + "]");
 			getUberTime(task, function(uberData) {
 				if(uberData == 'error' || uberData == null) {
-					setTimeout(function() { getTravelTime(task) }, 60000);
+					// Retrying after 5 seconds
+					setTimeout(function() { getTravelTime(task); }, 5000);
 				} else {
 					if(timeDiff <= data.time + uberData + safeInterval) {
 						addLog("Sending email to [" + task.email + "]");
 						sendEmail(task);
 					} else {
 						// check after one minute if current time is within max travel + uber time
-						setTimeout(function() { getTravelTime(task) }, 60000);
+						setTimeout(function() { getTravelTime(task); }, 60000);
 					}
 				}
 			}.bind(this));
 		} else {
 			var interval = timeDiff - task.maxTravelTime - maxUberETA;
 			// check after interval if current time outside max travel + uber time
-			setTimeout(function() { getTravelTime(task) }, interval*1000);
+			setTimeout(function() { getTravelTime(task); }, interval*1000);
 		}
 
 	});
@@ -204,20 +208,23 @@ function getUberTime(task, callback) {
 	var postData = { latitude: task.source.lat, longitude: task.source.long };
 	postToServer('uber/estimateTime', postData, function(data) {
 		if(data == 'error') {
-			addLog("ERROR in Uber API for [" + task.email + "]. Trying again...");
-			getUberTime(task, callback);
+			addLog("ERROR in Uber API for [" + task.email + "]. Retrying in 5 seconds...");
+			// Retrying after 5 seconds
+			setTimeout(function() { getUberTime(task, callback); }, 5000);
 			return;
 		}
 
 		if(data.code != 200) {
-			addLog("ERROR " + data.code + " from Uber API for [" + task.email + "]. Trying again...");
-			getUberTime(task, callback);
+			addLog("ERROR " + data.code + " from Uber API for [" + task.email + "]. Retrying in 5 seconds...");
+			// Retrying after 5 seconds
+			setTimeout(function() { getUberTime(task, callback); }, 5000);
 			return;
 		}
 
 		if(data.time == null) {
-			addLog("NULL from Uber API for [" + task.email + "]. Trying again...");
-			getUberTime(task, callback);
+			addLog("NULL from Uber API for [" + task.email + "]. Retrying in 5 seconds...");
+			// Retrying after 5 seconds
+			setTimeout(function() { getUberTime(task, callback); }, 5000);
 			return;
 		} else {
 			return callback(data.time);
