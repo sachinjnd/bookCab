@@ -30,13 +30,21 @@ var FormModel = React.createClass({
 			return;
 		}
 
+		this.setState({enabled: false});
+
 		if(!this.state.source || !this.state.dest || !this.state.time || !this.state.email) {
 			$("#error").show();
 			setTimeout(function() { $("#error").hide(); }, 2000);
+			this.setState({enabled: true});
 			return;
 		}
 
-		this.setState({enabled: false});
+		if(!checkInputs(this.state.source, this.state.dest, this.state.time, this.state.email)) {
+			$("#error").show();
+			setTimeout(function() { $("#error").hide(); }, 2000);
+			this.setState({enabled: true});
+			return;
+		}
 
 		var task = new Task(this.state.source, this.state.dest, this.state.time, this.state.email);
 		//tasks.push(task);
@@ -51,13 +59,13 @@ var FormModel = React.createClass({
 		return(
 			<div>
 				<h4 className="mybox-heading">It's time to book an Uber</h4>
-				<input type="text" className="form-control" id="source" placeholder="Source (latitude, longitude)" value={this.state.source} onChange={this.handleSourceChange} />
-				<input type="text" className="form-control" id="dest" placeholder="Destination (latitude, longitude)" value={this.state.dest} onChange={this.handleDestChange} />
+				<input type="text" className="form-control" id="source" placeholder="Latitude, Longitude (Source)" value={this.state.source} onChange={this.handleSourceChange} />
+				<input type="text" className="form-control" id="dest" placeholder="Latitude, Longitude (Destination)" value={this.state.dest} onChange={this.handleDestChange} />
 				<input type="time" className="form-control" id="time" placeholder="Time" value={this.state.time} onChange={this.handleTimeChange} />
 				<input type="text" className="form-control" id="email" placeholder="Email" value={this.state.email} onChange={this.handleEmailChange} />
 				<button className="btn btn-md btn-primary btn-block" onClick={this.handleRemindMe}>REMIND ME</button>
 				<div style={{marginTop: '10px'}} className="alert alert-success success" id="success" hidden>Task added successfully.</div>
-				<div style={{marginTop: '10px'}} className="alert alert-warning error" id="error" hidden>Please complete all the fields.</div>
+				<div style={{marginTop: '10px'}} className="alert alert-warning error" id="error" hidden>Please enter valid inputs.</div>
 			</div>
 		);
 	}
@@ -101,6 +109,38 @@ function Task(source, dest, time, email) {
 	this.time.setHours(time.substring(0,2), time.slice(-2));
 	this.email = email.replace(/ /g,'');
 	this.maxTravelTime = 0;
+}
+
+
+function checkInputs(source, dest, time, email) {
+	source = source.replace(/ /g,'');
+	dest = dest.replace(/ /g,'');
+	if(!checkFloat(source.split(",")[0]) || !checkFloat(source.split(",")[1]) || !checkFloat(dest.split(",")[0]) || !checkFloat(dest.split(",")[0])) {
+		return false;
+	} else if(!checkEmail(email)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+
+function checkFloat(value) {
+	if(!isNaN(value) && value.toString().indexOf('.') != -1) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function checkEmail(email) {
+	var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	if (filter.test(email)) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
