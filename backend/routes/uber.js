@@ -29,7 +29,10 @@ function hitUberAPI(post_data, callback) {
 				//res.send(response);
 				var data = JSON.parse(body);
 				var estimate = null;
-				for(product of data.times) {
+				var size = data.times.length;
+				var i;
+				for(i=0; i<size; i++) {
+					var product = data.times[i];
 					if(product.display_name == config.UBER_PRODUCT_NAME) {
 						estimate = product.estimate;
 						break;

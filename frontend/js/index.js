@@ -110,11 +110,19 @@ function getTravelTime(task) {
 	postToServer('maps/estimateTime', postData, function(data) {
 		if(data == 'error') {
 			addLog("ERROR in Maps API for [" + task.email + "]");
+			getTravelTime(task);
 			return;
 		}
 
-		if(data.code != 200 || data.time == null) {
+		if(data.code != 200) {
 			addLog("ERROR " + data.code + " from Maps API for [" + task.email + "]");
+			getTravelTime(task);
+			return;
+		}
+
+		if(data.time == null) {
+			addLog("NULL from Maps API for [" + task.email + "]");
+			getTravelTime(task);
 			return;
 		}
 
