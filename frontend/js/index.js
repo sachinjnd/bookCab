@@ -189,8 +189,8 @@ function sendEmail(task) {
 	var postData = { email: task.email };
 	postToServer('email', postData, function(data) {
 		if(data == 'error') {
-			addLog("ERROR in sending email. Trying again...");
-			sendEmail(task);
+			addLog("ERROR in sending email to " + task.email);
+			//sendEmail(task);
 			return;
 		}
 	});

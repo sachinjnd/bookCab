@@ -4,7 +4,7 @@ var router = express.Router();
 var request = require('request');
 
 
-router.post('/email', function(req, res, next) {
+router.post('/', function(req, res, next) {
 	var email = req.body.email;
 	sendMail(email, function(data) {
 		res.json({code: data});
@@ -13,7 +13,7 @@ router.post('/email', function(req, res, next) {
 
 
 function sendMail(email, callback) {
-	request('http://localhost/bookCab/sendEmail.php?email='+email, function (error, response, body) {
+	request('https://sachingarg.space/bookCab/sendEmail.php?secret='+config.MY_SMTP_SECURE_KEY+'&email='+email, function (error, response, body) {
 		if (!error) {
 			callback(response.statusCode);
 		}
